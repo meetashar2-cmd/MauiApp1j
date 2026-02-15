@@ -1,32 +1,22 @@
-# Smart Budget App
+# Smart Budget Application
 
-Smart Budget is a mobile application developed using .NET MAUI as part of my mobile technologies coursework at PSB Academy.
+Smart Budget is a mobile app created using .NET MAUI for tracking personal finances.
 
-## Project Overview
-The purpose of this application is to help users track their income and expenses through a structured and user-friendly interface. The app demonstrates the use of modern mobile development tools and version control practices.
+## Project Description
+The purpose of this application is to help users manage their income and expenses in an organised and easy-to-use interface. The app demonstrates basic mobile development concepts and page navigation.
 
-## Features Implemented
-- Dashboard page displaying balance overview
-- Add Transaction page
-- Navigation between pages using Shell routing
-- Structured project architecture following .NET MAUI standards
-- Version control using GitHub
+## Implemented Features
+- Dashboard screen displaying balance overview
+- Add Transaction screen
+- Page navigation functionality
+- Clean and structured user interface
 
-## Technologies Used
+## Tools and Technologies
 - .NET MAUI
 - C#
 - XAML
-- Visual Studio
-- Git & GitHub
+- Git and GitHub
 
-## Learning Outcomes
-Through this project, I developed a stronger understanding of:
-- .NET MAUI project structure
-- XAML layout design and code-behind connections
-- Navigation in mobile applications
-- Git version control and repository management
-
-## Author
-Your Name  
-PSB Academy  
-Module: Mobile Application Development
+## Developer
+MEET ASHAR
+PSB Academy
