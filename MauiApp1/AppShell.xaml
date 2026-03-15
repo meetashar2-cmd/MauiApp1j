@@ -5,18 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:MauiApp1">
 
-    <TabBar>
-        <ShellContent 
-            Title="Home"
-            ContentTemplate="{DataTemplate local:DashboardPage}" />
-
-        <ShellContent 
-            Title="Analytics"
-            ContentTemplate="{DataTemplate local:AnalyticsPage}" />
-
-        <ShellContent 
-            Title="Transfer"
-            ContentTemplate="{DataTemplate local:TransferPage}" />
-    </TabBar>
-
+    <!-- Add/keep Analytics in the Shell -->
+    <ShellContent
+        Title="Analytics"
+        ContentTemplate="{DataTemplate local:AnalyticsPage}" />
 </Shell>

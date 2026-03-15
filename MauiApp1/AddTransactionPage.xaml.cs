@@ -1,29 +1,48 @@
-﻿namespace MauiApp1;
+﻿using System.Globalization;
+
+namespace MauiApp1;
 
 public partial class AddTransactionPage : ContentPage
 {
     public AddTransactionPage()
     {
         InitializeComponent();
+        TypePicker.SelectedIndex = 1;     // default Expense
+        CategoryPicker.SelectedIndex = 0; // default first category
+        DatePicker.Date = DateTime.Today;
     }
 
     private async void OnSaveClicked(object sender, EventArgs e)
     {
-        string title = TitleEntry.Text;
-        string amountText = AmountEntry.Text;
-        string type = TypePicker.SelectedItem?.ToString();
+        var title = TitleEntry.Text?.Trim() ?? "";
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            await DisplayAlert("Missing", "Please enter a title.", "OK");
+            return;
+        }
 
-        // Convert amount safely
-        double amount = 0;
-        double.TryParse(amountText, out amount);
+        if (!decimal.TryParse(AmountEntry.Text?.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var rawAmount))
+        {
+            await DisplayAlert("Invalid", "Enter a valid amount.", "OK");
+            return;
+        }
 
-        // FIXED DATE ERROR HERE 👇
-        DateTime selectedDate = DatePicker.Date ?? DateTime.Now;
+        var selectedType = TypePicker.SelectedIndex == 0 ? "Income" : "Expense";
+        // Normalize: store absolute amount; type decides semantic sign
+        var amount = Math.Abs(rawAmount);
 
-        await DisplayAlert("Saved",
-            $"Title: {title}\nAmount: {amount}\nType: {type}\nDate: {selectedDate.ToShortDateString()}",
-            "OK");
+        var t = new Transaction
+        {
+            Title = title,
+            Amount = amount,
+            Type = selectedType,
+            Category = CategoryPicker.SelectedItem?.ToString() ?? "Other",
+            // Some MAUI versions use DateTime? for DatePicker.Date -> GetValueOrDefault avoids CS0266
+            Date = DatePicker.Date.GetValueOrDefault(DateTime.Today)
+        };
 
+        await Db.Save(t);
+        await DisplayAlert("Saved", "Transaction saved.", "OK");
         await Shell.Current.GoToAsync("..");
     }
 }
