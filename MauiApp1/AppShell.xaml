@@ -3,10 +3,32 @@
     x:Class="MauiApp1.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:MauiApp1">
+    xmlns:pages="clr-namespace:MauiApp1"
+    Shell.NavBarIsVisible="True">
 
-    <!-- Add/keep Analytics in the Shell -->
-    <ShellContent
-        Title="Analytics"
-        ContentTemplate="{DataTemplate local:AnalyticsPage}" />
+    <TabBar>
+
+        <Tab Title="Dashboard">
+            <ShellContent
+                Title="Dashboard"
+                ContentTemplate="{DataTemplate pages:DashboardPage}"
+                Route="dashboard" />
+        </Tab>
+
+        <Tab Title="Add">
+            <ShellContent
+                Title="Add Transaction"
+                ContentTemplate="{DataTemplate pages:AddTransactionPage}"
+                Route="add" />
+        </Tab>
+
+        <Tab Title="Analytics">
+            <ShellContent
+                Title="Analytics"
+                ContentTemplate="{DataTemplate pages:AnalyticsPage}"
+                Route="analytics" />
+        </Tab>
+
+    </TabBar>
+
 </Shell>
