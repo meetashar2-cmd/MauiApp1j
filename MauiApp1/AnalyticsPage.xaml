@@ -1,75 +1,85 @@
 <?xml version="1.0" encoding="utf-8" ?>
-
 <ContentPage
     x:Class="MauiApp1.AnalyticsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
-    xmlns:conv="clr-namespace:MauiApp1.Converters"
-    Title="Analytics"
-    BackgroundColor="#0B1320">
-
-    <ContentPage.Resources>
-        <conv:CategoryToColorConverter x:Key="CatColor" />
-    </ContentPage.Resources>
+    xmlns:charts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
+    BackgroundColor="#0F172A"
+    Title="Analytics">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="20">
+        <VerticalStackLayout Padding="25" Spacing="25">
 
-            <Label
-                Text="Analytics"
-                FontSize="28"
-                FontAttributes="Bold"
-                TextColor="White"/>
+            <!-- Header -->
+            <Label Text="Analytics"
+                   TextColor="White"
+                   FontSize="30"
+                   FontAttributes="Bold"/>
 
-            <Label Text="Total Expenses" TextColor="Gray"/>
-            <Label x:Name="TotalExpensesLabel"
-                   Text="{Binding TotalExpensesText}"
-                   FontSize="24"
-                   TextColor="White"/>
+            <!-- Balance -->
+            <Frame BackgroundColor="#1E293B" CornerRadius="25" Padding="20">
+                <VerticalStackLayout>
+                    <Label Text="Total Balance" TextColor="#94A3B8"/>
+                    <Label x:Name="BalanceLabel"
+                           Text="$0.00"
+                           TextColor="White"
+                           FontSize="34"
+                           FontAttributes="Bold"/>
+                </VerticalStackLayout>
+            </Frame>
 
-            <Label Text="Top Category" TextColor="Gray"/>
-            <Label x:Name="TopCategoryLabel"
-                   Text="{Binding TopCategoryText}"
-                   FontSize="20"
-                   TextColor="White"/>
+            <!-- Income / Expense -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
 
-            <!-- Doughnut / Pie -->
-            <lvc:DoughnutChart
-                Series="{Binding CategoryPieSeries}"
-                HeightRequest="250"/>
+                <Frame BackgroundColor="#1E293B" CornerRadius="20" Padding="15">
+                    <VerticalStackLayout>
+                        <Label Text="Income" TextColor="#94A3B8"/>
+                        <Label x:Name="IncomeLabel"
+                               Text="$0"
+                               TextColor="#22C55E"
+                               FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                </Frame>
 
-            <!-- Line -->
-            <lvc:LineChart
-                Series="{Binding DailyLineSeries}"
-                XAxes="{Binding DailyXAxes}"
-                YAxes="{Binding DailyYAxes}"
-                HeightRequest="250"/>
+                <Frame Grid.Column="1" BackgroundColor="#1E293B" CornerRadius="20" Padding="15">
+                    <VerticalStackLayout>
+                        <Label Text="Expense" TextColor="#94A3B8"/>
+                        <Label x:Name="ExpenseLabel"
+                               Text="$0"
+                               TextColor="#EF4444"
+                               FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                </Frame>
 
-            <!-- Breakdown list -->
-            <CollectionView x:Name="AnalyticsList"
-                            ItemsSource="{Binding AnalyticsItems}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Padding="10" ColumnDefinitions="Auto,*,Auto">
+            </Grid>
 
-                            <BoxView
-                                WidthRequest="10"
-                                HeightRequest="10"
-                                CornerRadius="5"
-                                Color="{Binding Category, Converter={StaticResource CatColor}}"/>
+            <!-- Title + Toggle -->
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="Spending"
+                       TextColor="White"
+                       FontSize="18"
+                       FontAttributes="Bold"/>
 
-                            <Label Grid.Column="1"
-                                   Text="{Binding Category}"
-                                   TextColor="White"/>
+                <Button Text="Switch"
+                        Grid.Column="1"
+                        Clicked="OnSwitchChart"
+                        BackgroundColor="#6366F1"
+                        TextColor="White"
+                        CornerRadius="15"
+                        Padding="10,5"/>
+            </Grid>
 
-                            <Label Grid.Column="2"
-                                   Text="{Binding Amount, StringFormat='${0:F2}'}"
-                                   TextColor="White"/>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            <!-- Chart -->
+            <Frame BackgroundColor="#1E293B"
+                   CornerRadius="25"
+                   Padding="20">
+
+                <charts:ChartView x:Name="ChartView"
+                                  HeightRequest="220"/>
+            </Frame>
+
+            <!-- Legend -->
+            <VerticalStackLayout x:Name="LegendLayout" Spacing="10"/>
 
         </VerticalStackLayout>
     </ScrollView>

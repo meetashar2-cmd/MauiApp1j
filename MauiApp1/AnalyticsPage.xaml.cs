@@ -1,62 +1,128 @@
-using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.Measure;
-using LiveChartsCore.SkiaSharpView.Painting;
+using Microcharts;
 using SkiaSharp;
+using MauiApp1.Services;
 
 namespace MauiApp1;
 
 public partial class AnalyticsPage : ContentPage
 {
-    public ISeries[] CategoryPieSeries { get; set; }
-    public ISeries[] DailyLineSeries { get; set; }
-    public Axis[] DailyXAxes { get; set; }
-    public Axis[] DailyYAxes { get; set; }
+    private bool isDonut = true;
 
     public AnalyticsPage()
     {
         InitializeComponent();
-        BindingContext = this;
-
-        LoadDemoData();
     }
 
-    void LoadDemoData()
+    protected override async void OnAppearing()
     {
-        CategoryPieSeries = new ISeries[]
-        {
-            new PieSeries<double>{ Values = new double[]{200}, Name="Shopping"},
-            new PieSeries<double>{ Values = new double[]{120}, Name="Food"},
-            new PieSeries<double>{ Values = new double[]{30}, Name="Other"}
-        };
+        base.OnAppearing();
+        await LoadData();
+    }
 
-        DailyLineSeries = new ISeries[]
+    private async Task LoadData()
+    {
+        var db = App.Database;
+        int accountId = Preferences.Get("SelectedAccountId", 1);
+
+        var all = await db.GetAllAsync();
+        var filtered = all.Where(x => x.AccountId == accountId).ToList();
+
+        var income = filtered.Where(x => x.Type == "Income").Sum(x => x.Amount);
+        var expense = filtered.Where(x => x.Type == "Expense").Sum(x => x.Amount);
+
+        BalanceLabel.Text = $"${income - expense:0.00}";
+        IncomeLabel.Text = $"${income:0.00}";
+        ExpenseLabel.Text = $"${expense:0.00}";
+
+        var grouped = filtered
+            .Where(x => x.Type == "Expense")
+            .GroupBy(x => x.Category)
+            .ToList();
+
+        var entries = grouped.Select(g => new ChartEntry((float)g.Sum(x => x.Amount))
         {
-            new LineSeries<double>
+            Label = "",
+            ValueLabel = "",
+            Color = SKColor.Parse(GetColor(g.Key))
+        }).ToList();
+
+        // 🔄 SWITCH CHART TYPE
+        if (isDonut)
+        {
+            ChartView.Chart = new DonutChart
             {
-                Values = new double[] { 10, 50, 30, 80, 20, 90, 60 },
-                Stroke = new SolidColorPaint(SKColors.MediumPurple){StrokeThickness=3}
-            }
-        };
-
-        DailyXAxes = new Axis[]
+                Entries = entries,
+                HoleRadius = 0.6f,
+                BackgroundColor = SKColors.Transparent
+            };
+        }
+        else
         {
-            new Axis { Labels = new [] { "Mon","Tue","Wed","Thu","Fri","Sat","Sun" } }
-        };
+            ChartView.Chart = new BarChart
+            {
+                Entries = entries,
+                BackgroundColor = SKColors.Transparent,
+                LabelTextSize = 30
+            };
+        }
 
-        DailyYAxes = new Axis[]
+        // 🔥 LEGEND
+        LegendLayout.Children.Clear();
+
+        foreach (var item in grouped)
         {
-            new Axis { Labeler = v => "$" + v.ToString() }
-        };
+            var color = GetColor(item.Key);
+            var total = item.Sum(x => x.Amount);
 
-        TotalExpensesLabel.Text = "$350";
-        TopCategoryLabel.Text = "Shopping";
+            LegendLayout.Children.Add(new Frame
+            {
+                BackgroundColor = Color.FromArgb("#1E293B"),
+                CornerRadius = 15,
+                Padding = 10,
+                Content = new HorizontalStackLayout
+                {
+                    Spacing = 10,
+                    Children =
+                    {
+                        new BoxView
+                        {
+                            WidthRequest = 12,
+                            HeightRequest = 12,
+                            CornerRadius = 6,
+                            Color = Color.FromArgb(GetColor(item.Key))
+                        },
+                        new Label
+                        {
+                            Text = item.Key,
+                            TextColor = Colors.White
+                        },
+                        new Label
+                        {
+                            Text = $"${total:0}",
+                            TextColor = Colors.Gray,
+                            HorizontalOptions = LayoutOptions.EndAndExpand
+                        }
+                    }
+                }
+            });
+        }
+    }
 
-        AnalyticsList.ItemsSource = new[]
+    private async void OnSwitchChart(object sender, EventArgs e)
+    {
+        isDonut = !isDonut;
+        await LoadData();
+    }
+
+    private static string GetColor(string category)
+    {
+        return category switch
         {
-            new {Category="Shopping",Amount="$200"},
-            new {Category="Food",Amount="$120"},
-            new {Category="Other",Amount="$30"}
+            "Food" => "#F59E0B",
+            "Travel" => "#3B82F6",
+            "Bills" => "#EF4444",
+            "Entertainment" => "#10B981",
+            _ => "#8B5CF6"
         };
     }
 }

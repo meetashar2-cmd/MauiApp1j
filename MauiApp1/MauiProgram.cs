@@ -1,5 +1,7 @@
 ﻿using LiveChartsCore.SkiaSharpView.Maui;
+using MauiApp1.Services;
 using Microsoft.Extensions.Logging;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 
 namespace MauiApp1;
 
@@ -11,11 +13,15 @@ public static class MauiProgram
 
         builder
             .UseMauiApp<App>()
-            .UseLiveCharts()   // THIS LINE FIXES YOUR ERROR
+            .UseSkiaSharp()
+            .UseLiveCharts()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             });
+
+        // ✅ FIXED POSITION (IMPORTANT)
+        builder.Services.AddSingleton<ITransactionDatabase, TransactionDatabase>();
 
 #if DEBUG
         builder.Logging.AddDebug();

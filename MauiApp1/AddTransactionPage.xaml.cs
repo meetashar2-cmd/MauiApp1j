@@ -1,48 +1,84 @@
-﻿using System.Globalization;
+using MauiApp1.Models;
+using MauiApp1.Services;
 
 namespace MauiApp1;
 
 public partial class AddTransactionPage : ContentPage
 {
+    private readonly ITransactionDatabase _db;
+
     public AddTransactionPage()
     {
         InitializeComponent();
-        TypePicker.SelectedIndex = 1;     // default Expense
-        CategoryPicker.SelectedIndex = 0; // default first category
-        DatePicker.Date = DateTime.Today;
+
+        // ✅ Get database from DI
+        _db = IPlatformApplication.Current.Services.GetService<ITransactionDatabase>();
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (_db == null)
+            return;
+
+        // ✅ Load accounts into picker
+        var accounts = await _db.GetAccountsAsync();
+
+        AccountPicker.ItemsSource = accounts;
+        AccountPicker.ItemDisplayBinding = new Binding("Name");
+
+        if (accounts.Any())
+            AccountPicker.SelectedIndex = 0;
     }
 
     private async void OnSaveClicked(object sender, EventArgs e)
     {
-        var title = TitleEntry.Text?.Trim() ?? "";
-        if (string.IsNullOrWhiteSpace(title))
+        if (_db == null)
         {
-            await DisplayAlert("Missing", "Please enter a title.", "OK");
+            await DisplayAlert("Error", "Database not available", "OK");
             return;
         }
 
-        if (!decimal.TryParse(AmountEntry.Text?.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var rawAmount))
+        // ✅ Validate amount
+        if (!double.TryParse(AmountEntry.Text, out var amount) || amount <= 0)
         {
-            await DisplayAlert("Invalid", "Enter a valid amount.", "OK");
+            await DisplayAlert("Validation", "Enter a valid amount", "OK");
             return;
         }
 
-        var selectedType = TypePicker.SelectedIndex == 0 ? "Income" : "Expense";
-        // Normalize: store absolute amount; type decides semantic sign
-        var amount = Math.Abs(rawAmount);
+        // ✅ Get selected account
+        var selectedAccount = AccountPicker.SelectedItem as Account;
 
-        var t = new Transaction
+        if (selectedAccount == null)
         {
-            Title = title,
+            await DisplayAlert("Validation", "Please select an account", "OK");
+            return;
+        }
+
+        // ✅ Create transaction
+        var tx = new TransactionRecord
+        {
+            Title = TitleEntry.Text?.Trim() ?? "No Title",
             Amount = amount,
-            Type = selectedType,
             Category = CategoryPicker.SelectedItem?.ToString() ?? "Other",
-            // Some MAUI versions use DateTime? for DatePicker.Date -> GetValueOrDefault avoids CS0266
-            Date = DatePicker.Date.GetValueOrDefault(DateTime.Today)
+            Type = TypePicker.SelectedItem?.ToString() ?? "Expense",
+            Date = DatePicker.Date ?? DateTime.Now,
+            AccountId = selectedAccount.Id
         };
 
-        await Db.Save(t);
-        await DisplayAlert("Saved", "Transaction saved.", "OK");
+        // ✅ Save to database
+        await _db.AddAsync(tx);
+
+        // ✅ Success message
+        await DisplayAlert("Success", "Transaction saved!", "OK");
+
+        // ✅ Navigate back to Dashboard
+        await Shell.Current.GoToAsync("..");
+    }
+
+    private async void OnCancelClicked(object sender, EventArgs e)
+    {
         await Shell.Current.GoToAsync("..");
     }
 }

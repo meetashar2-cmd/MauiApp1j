@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MauiApp1.PlanningPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#0F172A"
+    Title="Planning">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Title -->
+            <Label Text="Monthly Budget Planner"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="White"/>
+
+            <!-- Category Picker -->
+            <Picker x:Name="CategoryPicker"
+                    Title="Select Category"
+                    BackgroundColor="#1E293B"
+                    TextColor="White">
+                <Picker.Items>
+                    <x:String>Food</x:String>
+                    <x:String>Travel</x:String>
+                    <x:String>Bills</x:String>
+                    <x:String>Entertainment</x:String>
+                </Picker.Items>
+            </Picker>
+
+            <!-- Amount Entry -->
+            <Entry x:Name="AmountEntry"
+                   Placeholder="Enter Budget Amount"
+                   Keyboard="Numeric"
+                   TextColor="White"
+                   BackgroundColor="#1E293B"/>
+
+            <!-- Add Button -->
+            <Button Text="Add Plan"
+                    Clicked="OnAddPlan"
+                    BackgroundColor="#6366F1"
+                    TextColor="White"/>
+
+            <!-- Plans List -->
+            <CollectionView x:Name="PlansList">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BackgroundColor="#1E293B"
+                               CornerRadius="15"
+                               Padding="15"
+                               Margin="0,5">
+
+                            <HorizontalStackLayout>
+                                <Label Text="{Binding Category}"
+                                       TextColor="White"
+                                       FontAttributes="Bold"/>
+
+                                <Label Text="{Binding Amount, StringFormat='${0}'}"
+                                       TextColor="#A5B4FC"
+                                       HorizontalOptions="EndAndExpand"/>
+                            </HorizontalStackLayout>
+
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
