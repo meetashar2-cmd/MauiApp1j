@@ -31,7 +31,19 @@ public partial class DashboardPage : ContentPage
 
         if (accounts.Any())
         {
-            AccountPicker.SelectedIndex = 0;
+            int selectedAccountId = Preferences.Get("SelectedAccountId", accounts.First().Id);
+
+            var selectedAccount = accounts.FirstOrDefault(a => a.Id == selectedAccountId);
+
+            if (selectedAccount != null)
+            {
+                AccountPicker.SelectedItem = selectedAccount;
+            }
+            else
+            {
+                AccountPicker.SelectedIndex = 0;
+                Preferences.Set("SelectedAccountId", accounts[0].Id);
+            }
         }
     }
 
@@ -43,8 +55,7 @@ public partial class DashboardPage : ContentPage
         int accountId = Preferences.Get("SelectedAccountId", 1);
 
         var all = await App.Database.GetAllAsync();
-
-        var filtered = all.Where(x => x.AccountId == accountId);
+        var filtered = all.Where(x => x.AccountId == accountId).ToList();
 
         double income = filtered
             .Where(x => x.Type == "Income")
@@ -57,6 +68,92 @@ public partial class DashboardPage : ContentPage
         BalanceLabel.Text = $"${income - expense:0.00}";
         IncomeLabel.Text = $"${income:0.00}";
         ExpenseLabel.Text = $"${expense:0.00}";
+
+        await LoadInsights(filtered, accountId, income, expense);
+    }
+
+    // =========================
+    // SMART INSIGHTS
+    // =========================
+    private async Task LoadInsights(List<TransactionRecord> filtered, int accountId, double income, double expense)
+    {
+        if (!filtered.Any())
+        {
+            TopCategoryLabel.Text = "No transactions yet.";
+            BalanceStatusLabel.Text = "";
+            BudgetStatusLabel.Text = "";
+            return;
+        }
+
+        // TOP CATEGORY
+        var expenseGroups = filtered
+            .Where(x => x.Type == "Expense")
+            .GroupBy(x => x.Category)
+            .OrderByDescending(g => g.Sum(x => x.Amount))
+            .ToList();
+
+        string topCategory = expenseGroups.Any()
+            ? expenseGroups.First().Key
+            : "None";
+
+        double topAmount = expenseGroups.Any()
+            ? expenseGroups.First().Sum(x => x.Amount)
+            : 0;
+
+        TopCategoryLabel.Text = $"Top spending: {topCategory} (${topAmount:0.00})";
+
+        // BALANCE STATUS
+        if (income >= expense)
+        {
+            BalanceStatusLabel.Text = "You are saving money this month 👍";
+            BalanceStatusLabel.TextColor = Colors.LightGreen;
+        }
+        else
+        {
+            BalanceStatusLabel.Text = "You are overspending this month ⚠️";
+            BalanceStatusLabel.TextColor = Colors.Orange;
+        }
+
+        // BUDGET STATUS
+        var plans = await App.Database.GetPlansAsync(accountId);
+
+        string budgetMessage = "All budgets are under control ✅";
+        Color budgetColor = Colors.LightGreen;
+
+        var currentMonthPlans = plans
+            .Where(p => p.Month == DateTime.Now.Month && p.Year == DateTime.Now.Year)
+            .ToList();
+
+        foreach (var plan in currentMonthPlans)
+        {
+            double spent = filtered
+                .Where(t =>
+                    t.Type == "Expense" &&
+                    t.Category == plan.Category &&
+                    t.Date.Month == DateTime.Now.Month &&
+                    t.Date.Year == DateTime.Now.Year)
+                .Sum(t => t.Amount);
+
+            if (plan.Amount > 0)
+            {
+                double percentage = spent / plan.Amount;
+
+                if (percentage >= 1)
+                {
+                    budgetMessage = $"Exceeded {plan.Category} budget 🚨";
+                    budgetColor = Colors.Red;
+                    break;
+                }
+                else if (percentage >= 0.8)
+                {
+                    budgetMessage = $"Near {plan.Category} budget ⚠️";
+                    budgetColor = Colors.Orange;
+                }
+            }
+        }
+
+        BudgetStatusLabel.Text = budgetMessage;
+        BudgetStatusLabel.TextColor = budgetColor;
     }
 
     // =========================
@@ -70,7 +167,6 @@ public partial class DashboardPage : ContentPage
             return;
 
         Preferences.Set("SelectedAccountId", selected.Id);
-
         await LoadData();
     }
 
@@ -85,10 +181,11 @@ public partial class DashboardPage : ContentPage
         {
             await App.Database.AddAccountAsync(new Account
             {
-                Name = name
+                Name = name.Trim()
             });
 
             await LoadAccounts();
+            await LoadData();
         }
     }
 
@@ -108,5 +205,10 @@ public partial class DashboardPage : ContentPage
     private async void OnPlanningClicked(object sender, EventArgs e)
     {
         await Navigation.PushAsync(new PlanningPage());
+    }
+
+    private async void OnSavingsClicked(object sender, EventArgs e)
+    {
+        await Navigation.PushAsync(new SavingsGoalPage());
     }
 }

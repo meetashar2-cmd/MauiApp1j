@@ -5,6 +5,7 @@ namespace MauiApp1.Services;
 
 public interface ITransactionDatabase
 {
+    // ================= TRANSACTIONS =================
     Task<List<TransactionRecord>> GetAllAsync();
     Task<List<TransactionRecord>> GetRecentAsync();
     Task<(double income, double expense)> GetSummaryAsync();
@@ -14,15 +15,21 @@ public interface ITransactionDatabase
     Task<int> UpdateAsync(TransactionRecord tx);
     Task<int> DeleteAsync(TransactionRecord tx);
 
-    // Accounts
+    // ================= ACCOUNTS =================
     Task<List<Account>> GetAccountsAsync();
     Task<int> AddAccountAsync(Account acc);
     Task EnsureDefaultAccountAsync();
 
-    // Budget Planning
+    // ================= PLANNING =================
     Task<int> AddPlanAsync(BudgetPlan plan);
     Task<List<BudgetPlan>> GetPlansAsync(int accountId);
     Task<int> DeletePlanAsync(BudgetPlan plan);
+
+    // ================= SAVINGS GOALS =================
+    Task<int> AddSavingsGoalAsync(SavingsGoal goal);
+    Task<int> UpdateSavingsGoalAsync(SavingsGoal goal);
+    Task<int> DeleteSavingsGoalAsync(SavingsGoal goal);
+    Task<List<SavingsGoal>> GetSavingsGoalsAsync(int accountId);
 }
 
 public class TransactionDatabase : ITransactionDatabase
@@ -36,7 +43,8 @@ public class TransactionDatabase : ITransactionDatabase
 
         _db.CreateTableAsync<TransactionRecord>().Wait();
         _db.CreateTableAsync<Account>().Wait();
-        _db.CreateTableAsync<BudgetPlan>().Wait(); // 🔥 NEW
+        _db.CreateTableAsync<BudgetPlan>().Wait();
+        _db.CreateTableAsync<SavingsGoal>().Wait(); // ✅ NEW TABLE
     }
 
     // ================= TRANSACTIONS =================
@@ -77,9 +85,20 @@ public class TransactionDatabase : ITransactionDatabase
             );
     }
 
-    public async Task<int> AddAsync(TransactionRecord tx) => await _db.InsertAsync(tx);
-    public async Task<int> UpdateAsync(TransactionRecord tx) => await _db.UpdateAsync(tx);
-    public async Task<int> DeleteAsync(TransactionRecord tx) => await _db.DeleteAsync(tx);
+    public async Task<int> AddAsync(TransactionRecord tx)
+    {
+        return await _db.InsertAsync(tx);
+    }
+
+    public async Task<int> UpdateAsync(TransactionRecord tx)
+    {
+        return await _db.UpdateAsync(tx);
+    }
+
+    public async Task<int> DeleteAsync(TransactionRecord tx)
+    {
+        return await _db.DeleteAsync(tx);
+    }
 
     // ================= ACCOUNTS =================
 
@@ -120,5 +139,29 @@ public class TransactionDatabase : ITransactionDatabase
     public async Task<int> DeletePlanAsync(BudgetPlan plan)
     {
         return await _db.DeleteAsync(plan);
+    }
+
+    // ================= SAVINGS GOALS =================
+
+    public async Task<int> AddSavingsGoalAsync(SavingsGoal goal)
+    {
+        return await _db.InsertAsync(goal);
+    }
+
+    public async Task<int> UpdateSavingsGoalAsync(SavingsGoal goal)
+    {
+        return await _db.UpdateAsync(goal);
+    }
+
+    public async Task<int> DeleteSavingsGoalAsync(SavingsGoal goal)
+    {
+        return await _db.DeleteAsync(goal);
+    }
+
+    public async Task<List<SavingsGoal>> GetSavingsGoalsAsync(int accountId)
+    {
+        return await _db.Table<SavingsGoal>()
+            .Where(x => x.AccountId == accountId)
+            .ToListAsync();
     }
 }
