@@ -10,24 +10,9 @@ public partial class AddTransactionPage : ContentPage
     public AddTransactionPage()
     {
         InitializeComponent();
-
-        _db = IPlatformApplication.Current.Services.GetService<ITransactionDatabase>();
-    }
-
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-
-        if (_db == null)
-            return;
-
-        var accounts = await _db.GetAccountsAsync();
-
-        AccountPicker.ItemsSource = accounts;
-        AccountPicker.ItemDisplayBinding = new Binding("Name");
-
-        if (accounts.Any())
-            AccountPicker.SelectedIndex = 0;
+        TypePicker.SelectedIndex = 1;     // default Expense
+        CategoryPicker.SelectedIndex = 0; // default first category
+        DatePicker.Date = DateTime.Today;
     }
 
     private async void OnSaveClicked(object sender, EventArgs e)
@@ -38,21 +23,17 @@ public partial class AddTransactionPage : ContentPage
             return;
         }
 
-        if (!double.TryParse(AmountEntry.Text, out var amount) || amount <= 0)
+        if (!decimal.TryParse(AmountEntry.Text?.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var rawAmount))
         {
             await DisplayAlert("Validation", "Enter a valid amount", "OK");
             return;
         }
 
-        var selectedAccount = AccountPicker.SelectedItem as Account;
+        var selectedType = TypePicker.SelectedIndex == 0 ? "Income" : "Expense";
+        // Normalize: store absolute amount; type decides semantic sign
+        var amount = Math.Abs(rawAmount);
 
-        if (selectedAccount == null)
-        {
-            await DisplayAlert("Validation", "Please select an account", "OK");
-            return;
-        }
-
-        var tx = new TransactionRecord
+        var t = new Transaction
         {
             Title = TitleEntry.Text?.Trim() ?? "No Title",
             Amount = amount,
@@ -62,63 +43,8 @@ public partial class AddTransactionPage : ContentPage
             AccountId = selectedAccount.Id
         };
 
-        await _db.AddAsync(tx);
-
-        if (tx.Type == "Expense")
-        {
-            await CheckBudgetStatus(tx);
-        }
-
-        await DisplayAlert("Success", "Transaction saved!", "OK");
-        await Shell.Current.GoToAsync("//dashboard");
-    }
-
-    private async Task CheckBudgetStatus(TransactionRecord tx)
-    {
-        if (_db == null)
-            return;
-
-        var plans = await _db.GetPlansAsync(tx.AccountId);
-
-        var matchingPlan = plans.FirstOrDefault(p =>
-            p.Category == tx.Category &&
-            p.Month == tx.Date.Month &&
-            p.Year == tx.Date.Year);
-
-        if (matchingPlan == null || matchingPlan.Amount <= 0)
-            return;
-
-        var allTransactions = await _db.GetAllAsync();
-
-        var totalSpent = allTransactions
-            .Where(t =>
-                t.AccountId == tx.AccountId &&
-                t.Type == "Expense" &&
-                t.Category == tx.Category &&
-                t.Date.Month == tx.Date.Month &&
-                t.Date.Year == tx.Date.Year)
-            .Sum(t => t.Amount);
-
-        double percentage = (totalSpent / matchingPlan.Amount) * 100;
-
-        if (percentage >= 100)
-        {
-            await DisplayAlert(
-                "🚨 Budget Exceeded",
-                $"You exceeded your {tx.Category} budget!\n\nBudget: ${matchingPlan.Amount:F2}\nSpent: ${totalSpent:F2}",
-                "OK");
-        }
-        else if (percentage >= 80)
-        {
-            await DisplayAlert(
-                "⚠️ Budget Warning",
-                $"You’ve used {percentage:F0}% of your {tx.Category} budget.\n\nBudget: ${matchingPlan.Amount:F2}\nSpent: ${totalSpent:F2}",
-                "OK");
-        }
-    }
-
-    private async void OnCancelClicked(object sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//dashboard");
+        await Db.Save(t);
+        await DisplayAlert("Saved", "Transaction saved.", "OK");
+        await Shell.Current.GoToAsync("..");
     }
 }

@@ -22,30 +22,23 @@ public partial class DashboardPage : ContentPage
     // =========================
     // LOAD ACCOUNTS
     // =========================
-    private async Task LoadAccounts()
+    private enum FilterMode { ThisMonth, LastMonth, All }
+    private FilterMode _mode = FilterMode.ThisMonth;
+
+    private async Task ApplyFilterAsync(FilterMode mode)
     {
-        var accounts = await App.Database.GetAccountsAsync();
+        _mode = mode;
+        var now = DateTime.Now;
 
-        AccountPicker.ItemsSource = accounts;
-        AccountPicker.ItemDisplayBinding = new Binding("Name");
+        IEnumerable<Transaction> list = _all;
 
-        if (accounts.Any())
+        if (mode == FilterMode.ThisMonth)
+            list = _all.Where(t => t.Date.Year == now.Year && t.Date.Month == now.Month);
+        else if (mode == FilterMode.LastMonth)
         {
-            int selectedAccountId = Preferences.Get("SelectedAccountId", accounts.First().Id);
-
-            var selectedAccount = accounts.FirstOrDefault(a => a.Id == selectedAccountId);
-
-            if (selectedAccount != null)
-            {
-                AccountPicker.SelectedItem = selectedAccount;
-            }
-            else
-            {
-                AccountPicker.SelectedIndex = 0;
-                Preferences.Set("SelectedAccountId", accounts[0].Id);
-            }
+            var prev = now.AddMonths(-1);
+            list = _all.Where(t => t.Date.Year == prev.Year && t.Date.Month == prev.Month);
         }
-    }
 
     // =========================
     // LOAD DATA
@@ -54,138 +47,77 @@ public partial class DashboardPage : ContentPage
     {
         int accountId = Preferences.Get("SelectedAccountId", 1);
 
-        var all = await App.Database.GetAllAsync();
-        var filtered = all.Where(x => x.AccountId == accountId).ToList();
+        // These names must exist in XAML
+        IncomeLabel.Text = $"${income:0,0.00}";
+        ExpenseLabel.Text = $"${expenses:0,0.00}";
+        BalanceLabel.Text = $"${(income - expenses):0,0.00}";
 
-        double income = filtered
-            .Where(x => x.Type == "Income")
-            .Sum(x => x.Amount);
+        RecentList.ItemsSource = list.Take(10).ToList();
 
-        double expense = filtered
-            .Where(x => x.Type == "Expense")
-            .Sum(x => x.Amount);
+        await CheckBudgetsAsync(list);
+        await Task.CompletedTask;
+    }
 
-        BalanceLabel.Text = $"${income - expense:0.00}";
-        IncomeLabel.Text = $"${income:0.00}";
-        ExpenseLabel.Text = $"${expense:0.00}";
+    private async Task CheckBudgetsAsync(IEnumerable<Transaction> list)
+    {
+        // Budget checks only for the currently visible (filtered) expenses
+        var over = list.Where(t => t.Type == "Expense")
+            .GroupBy(t => t.Category)
+            .Select(g => new
+            {
+                Category = g.Key,
+                Sum = g.Sum(x => x.Amount),
+                Cap = Budget.Caps.GetValueOrDefault(g.Key, 0m)
+            })
+            .Where(x => x.Cap > 0 && x.Sum > x.Cap)
+            .ToList();
 
-        await LoadInsights(filtered, accountId, income, expense);
+        if (over.Any())
+        {
+            var message = string.Join("\n", over.Select(x => $"{x.Category}: ${x.Sum:0} / ${x.Cap:0} (over)"));
+            await DisplayAlert("Budget warning", message, "OK");
+        }
     }
 
     // =========================
-    // SMART INSIGHTS
+    // Event handlers required by your XAML
     // =========================
-    private async Task LoadInsights(List<TransactionRecord> filtered, int accountId, double income, double expense)
+
+    // Buttons (Clicked)
+    private async void OnFilterThisMonth(object sender, EventArgs e)
+        => await ApplyFilterAsync(FilterMode.ThisMonth);
+
+    private async void OnFilterLastMonth(object sender, EventArgs e)
+        => await ApplyFilterAsync(FilterMode.LastMonth);
+
+    private async void OnFilterAll(object sender, EventArgs e)
+        => await ApplyFilterAsync(FilterMode.All);
+
+    // Quick Action “Add” (TapGestureRecognizer.Tapped)
+    private async void OnAddClicked(object sender, TappedEventArgs e)
+        => await Shell.Current.GoToAsync(nameof(AddTransactionPage));
+
+    // Swipe to delete (SwipeItem.Invoked)
+    private Transaction? _lastDeleted;
+
+    private async void OnDeleteSwipe(object sender, EventArgs e)
     {
-        if (!filtered.Any())
+        if (sender is SwipeItem swipe && swipe.BindingContext is Transaction t)
         {
-            TopCategoryLabel.Text = "No transactions yet.";
-            BalanceStatusLabel.Text = "";
-            BudgetStatusLabel.Text = "";
-            return;
-        }
+            _lastDeleted = t;
+            await Db.Delete(t);
+            _all.RemoveAll(x => x.Id == t.Id);
+            await ApplyFilterAsync(_mode);
 
-        // TOP CATEGORY
-        var expenseGroups = filtered
-            .Where(x => x.Type == "Expense")
-            .GroupBy(x => x.Category)
-            .OrderByDescending(g => g.Sum(x => x.Amount))
-            .ToList();
-
-        string topCategory = expenseGroups.Any()
-            ? expenseGroups.First().Key
-            : "None";
-
-        double topAmount = expenseGroups.Any()
-            ? expenseGroups.First().Sum(x => x.Amount)
-            : 0;
-
-        TopCategoryLabel.Text = $"Top spending: {topCategory} (${topAmount:0.00})";
-
-        // BALANCE STATUS
-        if (income >= expense)
-        {
-            BalanceStatusLabel.Text = "You are saving money this month 👍";
-            BalanceStatusLabel.TextColor = Colors.LightGreen;
-        }
-        else
-        {
-            BalanceStatusLabel.Text = "You are overspending this month ⚠️";
-            BalanceStatusLabel.TextColor = Colors.Orange;
-        }
-
-        // BUDGET STATUS
-        var plans = await App.Database.GetPlansAsync(accountId);
-
-        string budgetMessage = "All budgets are under control ✅";
-        Color budgetColor = Colors.LightGreen;
-
-        var currentMonthPlans = plans
-            .Where(p => p.Month == DateTime.Now.Month && p.Year == DateTime.Now.Year)
-            .ToList();
-
-        foreach (var plan in currentMonthPlans)
-        {
-            double spent = filtered
-                .Where(t =>
-                    t.Type == "Expense" &&
-                    t.Category == plan.Category &&
-                    t.Date.Month == DateTime.Now.Month &&
-                    t.Date.Year == DateTime.Now.Year)
-                .Sum(t => t.Amount);
-
-            if (plan.Amount > 0)
+            bool undo = await DisplayAlert("Deleted", $"Removed '{t.Title}'. Undo?", "Undo", "OK");
+            if (undo && _lastDeleted != null)
             {
-                double percentage = spent / plan.Amount;
-
-                if (percentage >= 1)
-                {
-                    budgetMessage = $"Exceeded {plan.Category} budget 🚨";
-                    budgetColor = Colors.Red;
-                    break;
-                }
-                else if (percentage >= 0.8)
-                {
-                    budgetMessage = $"Near {plan.Category} budget ⚠️";
-                    budgetColor = Colors.Orange;
-                }
+                _lastDeleted.Id = 0; // re-insert as new
+                await Db.Save(_lastDeleted);
+                _all = await Db.GetAll();
+                _lastDeleted = null;
+                await ApplyFilterAsync(_mode);
             }
-        }
-
-        BudgetStatusLabel.Text = budgetMessage;
-        BudgetStatusLabel.TextColor = budgetColor;
-    }
-
-    // =========================
-    // ACCOUNT CHANGED
-    // =========================
-    private async void OnAccountChanged(object sender, EventArgs e)
-    {
-        var selected = AccountPicker.SelectedItem as Account;
-
-        if (selected == null)
-            return;
-
-        Preferences.Set("SelectedAccountId", selected.Id);
-        await LoadData();
-    }
-
-    // =========================
-    // ADD ACCOUNT
-    // =========================
-    private async void OnAddAccountClicked(object sender, EventArgs e)
-    {
-        string name = await DisplayPromptAsync("New Account", "Enter account name:");
-
-        if (!string.IsNullOrWhiteSpace(name))
-        {
-            await App.Database.AddAccountAsync(new Account
-            {
-                Name = name.Trim()
-            });
-
-            await LoadAccounts();
-            await LoadData();
         }
     }
 
@@ -197,18 +129,16 @@ public partial class DashboardPage : ContentPage
         await Navigation.PushAsync(new AddTransactionPage());
     }
 
-    private async void OnAnalyticsClicked(object sender, EventArgs e)
-    {
-        await Navigation.PushAsync(new AnalyticsPage());
-    }
-
-    private async void OnPlanningClicked(object sender, EventArgs e)
-    {
-        await Navigation.PushAsync(new PlanningPage());
-    }
-
-    private async void OnSavingsClicked(object sender, EventArgs e)
-    {
-        await Navigation.PushAsync(new SavingsGoalPage());
+            // Small delay then refresh after closing
+            grid.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(200), () =>
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    _all = await Db.GetAll();
+                    await ApplyFilterAsync(_mode);
+                });
+                return false;
+            });
+        }
     }
 }

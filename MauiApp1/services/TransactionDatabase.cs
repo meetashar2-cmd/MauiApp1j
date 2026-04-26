@@ -15,12 +15,10 @@ public interface ITransactionDatabase
     Task<int> UpdateAsync(TransactionRecord tx);
     Task<int> DeleteAsync(TransactionRecord tx);
 
-    // ================= ACCOUNTS =================
     Task<List<Account>> GetAccountsAsync();
     Task<int> AddAccountAsync(Account acc);
     Task EnsureDefaultAccountAsync();
 
-    // ================= PLANNING =================
     Task<int> AddPlanAsync(BudgetPlan plan);
     Task<List<BudgetPlan>> GetPlansAsync(int accountId);
     Task<int> DeletePlanAsync(BudgetPlan plan);
@@ -43,8 +41,6 @@ public class TransactionDatabase : ITransactionDatabase
 
         _db.CreateTableAsync<TransactionRecord>().Wait();
         _db.CreateTableAsync<Account>().Wait();
-        _db.CreateTableAsync<BudgetPlan>().Wait();
-        _db.CreateTableAsync<SavingsGoal>().Wait(); // ✅ NEW TABLE
     }
 
     // ================= TRANSACTIONS =================
@@ -85,20 +81,6 @@ public class TransactionDatabase : ITransactionDatabase
             );
     }
 
-    public async Task<int> AddAsync(TransactionRecord tx)
-    {
-        return await _db.InsertAsync(tx);
-    }
-
-    public async Task<int> UpdateAsync(TransactionRecord tx)
-    {
-        return await _db.UpdateAsync(tx);
-    }
-
-    public async Task<int> DeleteAsync(TransactionRecord tx)
-    {
-        return await _db.DeleteAsync(tx);
-    }
 
     // ================= ACCOUNTS =================
 

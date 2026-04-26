@@ -11,9 +11,6 @@ public partial class App : Application
     {
         InitializeComponent();
 
-        Database = db;
-
-        // ✅ Only AppShell
-        MainPage = new AppShell();
+        MainPage = new NavigationPage(new AnalyticsPage());
     }
 }

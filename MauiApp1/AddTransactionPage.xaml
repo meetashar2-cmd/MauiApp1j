@@ -1,293 +1,43 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <ContentPage
     x:Class="MauiApp1.AddTransactionPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    BackgroundColor="#061224"
-    Shell.NavBarIsVisible="False"
     Title="Add Transaction">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20,24,20,30" Spacing="22">
+    <VerticalStackLayout Padding="20" Spacing="15">
 
-            <!-- Header -->
-            <Grid ColumnDefinitions="*,Auto">
+        <Entry x:Name="TitleEntry" Placeholder="Title" />
 
-                <VerticalStackLayout Spacing="4">
-                    <Label
-                        Text="Add Transaction"
-                        FontSize="30"
-                        FontAttributes="Bold"
-                        TextColor="White" />
+        <Entry x:Name="AmountEntry"
+           Placeholder="Amount (positive for income, negative for expense)"
+           Keyboard="Numeric" />
 
-                    <Label
-                        Text="Record your income or expense quickly"
-                        FontSize="14"
-                        TextColor="#8FA3BF" />
-                </VerticalStackLayout>
+        <!-- Wrap items in <Picker.Items> -->
+        <Picker x:Name="TypePicker" Title="Select Type">
+            <Picker.Items>
+                <x:String>Income</x:String>
+                <x:String>Expense</x:String>
+            </Picker.Items>
+        </Picker>
 
-                <Frame
-                    HeightRequest="52"
-                    WidthRequest="52"
-                    CornerRadius="26"
-                    Padding="0"
-                    BackgroundColor="#10213A"
-                    HasShadow="False"
-                    BorderColor="#1E3353">
+        <!-- Wrap items in <Picker.Items> -->
+        <Picker x:Name="CategoryPicker" Title="Category">
+            <Picker.Items>
+                <x:String>Food</x:String>
+                <x:String>Transport</x:String>
+                <x:String>Salary</x:String>
+                <x:String>Shopping</x:String>
+                <x:String>Entertainment</x:String>
+                <x:String>Other</x:String>
+            </Picker.Items>
+        </Picker>
 
-                    <Label
-                        Text="💸"
-                        FontSize="22"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center" />
-                </Frame>
+        <DatePicker x:Name="DatePicker" />
 
-            </Grid>
-
-            <!-- Summary Card -->
-            <Frame
-                CornerRadius="28"
-                Padding="20"
-                HasShadow="False">
-
-                <Frame.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#4F46E5" Offset="0" />
-                        <GradientStop Color="#7C3AED" Offset="0.6" />
-                        <GradientStop Color="#A855F7" Offset="1" />
-                    </LinearGradientBrush>
-                </Frame.Background>
-
-                <VerticalStackLayout Spacing="8">
-                    <Label
-                        Text="Smart Entry"
-                        FontSize="14"
-                        TextColor="#E9D5FF" />
-
-                    <Label
-                        Text="Track every transaction"
-                        FontSize="28"
-                        FontAttributes="Bold"
-                        TextColor="White" />
-
-                    <Label
-                        Text="Stay updated with your spending and income."
-                        FontSize="13"
-                        TextColor="#F3E8FF" />
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- Form -->
-            <Frame
-                BackgroundColor="#0D1B2E"
-                CornerRadius="26"
-                Padding="18"
-                HasShadow="False"
-                BorderColor="#1A2B45">
-
-                <VerticalStackLayout Spacing="16">
-
-                    <Label
-                        Text="Transaction Details"
-                        FontSize="20"
-                        FontAttributes="Bold"
-                        TextColor="White" />
-
-                    <!-- Title -->
-                    <VerticalStackLayout Spacing="8">
-                        <Label
-                            Text="Title"
-                            FontSize="13"
-                            TextColor="#9FB2CC" />
-
-                        <Border
-                            Stroke="#243754"
-                            StrokeThickness="1.2"
-                            BackgroundColor="#12233B"
-                            StrokeShape="RoundRectangle 18">
-
-                            <Entry
-                                x:Name="TitleEntry"
-                                Placeholder="Enter transaction title"
-                                PlaceholderColor="#6B85A3"
-                                TextColor="White"
-                                BackgroundColor="Transparent"
-                                Margin="14,10" />
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <!-- Amount -->
-                    <VerticalStackLayout Spacing="8">
-                        <Label
-                            Text="Amount"
-                            FontSize="13"
-                            TextColor="#9FB2CC" />
-
-                        <Border
-                            Stroke="#243754"
-                            StrokeThickness="1.2"
-                            BackgroundColor="#12233B"
-                            StrokeShape="RoundRectangle 18">
-
-                            <Grid ColumnDefinitions="Auto,*" Padding="14,4">
-                                <Label
-                                    Text="$"
-                                    FontSize="18"
-                                    FontAttributes="Bold"
-                                    TextColor="#A78BFA"
-                                    VerticalOptions="Center" />
-
-                                <Entry
-                                    Grid.Column="1"
-                                    x:Name="AmountEntry"
-                                    Placeholder="Enter amount"
-                                    PlaceholderColor="#6B85A3"
-                                    Keyboard="Numeric"
-                                    TextColor="White"
-                                    BackgroundColor="Transparent"
-                                    Margin="8,0,0,0" />
-                            </Grid>
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <!-- Category -->
-                    <VerticalStackLayout Spacing="8">
-                        <Label
-                            Text="Category"
-                            FontSize="13"
-                            TextColor="#9FB2CC" />
-
-                        <Border
-                            Stroke="#243754"
-                            StrokeThickness="1.2"
-                            BackgroundColor="#12233B"
-                            StrokeShape="RoundRectangle 18">
-
-                            <Picker
-                                x:Name="CategoryPicker"
-                                Title="Choose a category"
-                                TitleColor="#94A3B8"
-                                TextColor="White"
-                                BackgroundColor="Transparent"
-                                Margin="14,6">
-                                <Picker.Items>
-                                    <x:String>Food</x:String>
-                                    <x:String>Travel</x:String>
-                                    <x:String>Bills</x:String>
-                                    <x:String>Entertainment</x:String>
-                                    <x:String>Other</x:String>
-                                </Picker.Items>
-                            </Picker>
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <!-- Type -->
-                    <VerticalStackLayout Spacing="8">
-                        <Label
-                            Text="Type"
-                            FontSize="13"
-                            TextColor="#9FB2CC" />
-
-                        <Border
-                            Stroke="#243754"
-                            StrokeThickness="1.2"
-                            BackgroundColor="#12233B"
-                            StrokeShape="RoundRectangle 18">
-
-                            <Picker
-                                x:Name="TypePicker"
-                                Title="Choose transaction type"
-                                TitleColor="#94A3B8"
-                                TextColor="White"
-                                BackgroundColor="Transparent"
-                                Margin="14,6">
-                                <Picker.Items>
-                                    <x:String>Expense</x:String>
-                                    <x:String>Income</x:String>
-                                </Picker.Items>
-                            </Picker>
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <!-- Date and Account -->
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
-
-                        <VerticalStackLayout Spacing="8">
-                            <Label
-                                Text="Date"
-                                FontSize="13"
-                                TextColor="#9FB2CC" />
-
-                            <Border
-                                Stroke="#243754"
-                                StrokeThickness="1.2"
-                                BackgroundColor="#12233B"
-                                StrokeShape="RoundRectangle 18">
-
-                                <DatePicker
-                                    x:Name="DatePicker"
-                                    TextColor="White"
-                                    BackgroundColor="Transparent"
-                                    Margin="14,6" />
-                            </Border>
-                        </VerticalStackLayout>
-
-                        <VerticalStackLayout Grid.Column="1" Spacing="8">
-                            <Label
-                                Text="Account"
-                                FontSize="13"
-                                TextColor="#9FB2CC" />
-
-                            <Border
-                                Stroke="#243754"
-                                StrokeThickness="1.2"
-                                BackgroundColor="#12233B"
-                                StrokeShape="RoundRectangle 18">
-
-                                <Picker
-                                    x:Name="AccountPicker"
-                                    Title="Select account"
-                                    TitleColor="#94A3B8"
-                                    TextColor="White"
-                                    BackgroundColor="Transparent"
-                                    Margin="14,6" />
-                            </Border>
-                        </VerticalStackLayout>
-
-                    </Grid>
-
-                    <!-- Buttons -->
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-
-                        <Button
-                            Text="Cancel"
-                            Grid.Column="0"
-                            Clicked="OnCancelClicked"
-                            HeightRequest="54"
-                            CornerRadius="18"
-                            FontAttributes="Bold"
-                            FontSize="16"
-                            TextColor="White"
-                            BackgroundColor="#10213A"
-                            BorderColor="#1E3353"
-                            BorderWidth="1" />
-
-                        <Button
-                            Text="Save"
-                            Grid.Column="1"
-                            Clicked="OnSaveClicked"
-                            HeightRequest="54"
-                            CornerRadius="18"
-                            FontAttributes="Bold"
-                            FontSize="16"
-                            TextColor="White"
-                            BackgroundColor="#7C3AED" />
-
-                    </Grid>
-
-                </VerticalStackLayout>
-            </Frame>
-
-        </VerticalStackLayout>
-    </ScrollView>
+        <Button Text="Save"
+            BackgroundColor="#2196F3"
+            TextColor="White"
+            Clicked="OnSaveClicked"/>
+    </VerticalStackLayout>
 </ContentPage>

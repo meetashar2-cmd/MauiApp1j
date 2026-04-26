@@ -3,520 +3,157 @@
     x:Class="MauiApp1.DashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    BackgroundColor="#061224"
+    xmlns:local="clr-namespace:MauiApp1"
+    BackgroundColor="#0F172A"
     Shell.NavBarIsVisible="False">
 
-    <Grid>
+    <!-- Register the converter from Converters/CategoryToColorConverter.cs (namespace MauiApp1) -->
+    <ContentPage.Resources>
+        <local:CategoryToColorConverter x:Key="CatColor"/>
+    </ContentPage.Resources>
 
+    <Grid>
         <ScrollView>
-            <VerticalStackLayout Padding="20,24,20,110" Spacing="22">
+            <VerticalStackLayout Padding="25" Spacing="35">
 
                 <!-- Header -->
                 <Grid ColumnDefinitions="*,Auto">
-
-                    <VerticalStackLayout Spacing="4">
-                        <Label
-                            Text="Welcome Back 👋"
-                            FontSize="15"
-                            TextColor="#8FA3BF" />
-
-                        <Label
-                            Text="Smart Budget"
-                            FontSize="32"
-                            FontAttributes="Bold"
-                            TextColor="White" />
+                    <VerticalStackLayout Spacing="3">
+                        <Label Text="Welcome back" TextColor="#94A3B8" FontSize="14"/>
+                        <Label Text="Meet Ashar" TextColor="White" FontSize="30" FontAttributes="Bold"/>
                     </VerticalStackLayout>
 
-                    <Frame
-                        HeightRequest="54"
-                        WidthRequest="54"
-                        CornerRadius="27"
-                        Padding="0"
-                        BackgroundColor="#10213A"
-                        BorderColor="#1E3353"
-                        HasShadow="False"
-                        VerticalOptions="Center">
-
-                        <Label
-                            Text="💼"
-                            FontSize="22"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center" />
+                    <Frame WidthRequest="50" HeightRequest="50" CornerRadius="25"
+                 BackgroundColor="#1E293B" Padding="0" HasShadow="False">
+                        <Label Text="MA" HorizontalOptions="Center" VerticalOptions="Center"
+                   TextColor="White" FontAttributes="Bold"/>
                     </Frame>
-
                 </Grid>
 
-                <!-- Top info row -->
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-
-                    <Frame
-                        BackgroundColor="#0D1B2E"
-                        BorderColor="#1A2B45"
-                        CornerRadius="18"
-                        Padding="14,10"
-                        HasShadow="False">
-
-                        <HorizontalStackLayout Spacing="8">
-                            <Label
-                                Text="📌"
-                                FontSize="15"
-                                VerticalOptions="Center" />
-                            <Label
-                                Text="Manage your budget account-wise"
-                                FontSize="13"
-                                TextColor="#9FB2CC"
-                                VerticalOptions="Center" />
-                        </HorizontalStackLayout>
-                    </Frame>
-
-                    <Frame
-                        Grid.Column="1"
-                        BackgroundColor="#10213A"
-                        BorderColor="#1E3353"
-                        CornerRadius="16"
-                        Padding="12,8"
-                        HasShadow="False">
-
-                        <Label
-                            Text="Today"
-                            FontSize="12"
-                            TextColor="#A78BFA" />
-                    </Frame>
-
-                </Grid>
-
-                <!-- Account selector -->
-                <Frame
-                    BackgroundColor="#0D1B2E"
-                    BorderColor="#1A2B45"
-                    CornerRadius="24"
-                    Padding="16"
-                    HasShadow="False">
-
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-
-                        <VerticalStackLayout Spacing="8">
-                            <Label
-                                Text="Account"
-                                FontSize="13"
-                                TextColor="#9FB2CC" />
-
-                            <Border
-                                Stroke="#243754"
-                                StrokeThickness="1.2"
-                                BackgroundColor="#12233B"
-                                StrokeShape="RoundRectangle 18">
-
-                                <Picker
-                                    x:Name="AccountPicker"
-                                    Title="Select Account"
-                                    TextColor="White"
-                                    TitleColor="#94A3B8"
-                                    BackgroundColor="Transparent"
-                                    Margin="14,6"
-                                    SelectedIndexChanged="OnAccountChanged" />
-                            </Border>
-                        </VerticalStackLayout>
-
-                        <Button
-                            Grid.Column="1"
-                            Text="+"
-                            WidthRequest="42"
-                            HeightRequest="42"
-                            CornerRadius="21"
-                            BackgroundColor="#7C3AED"
-                            TextColor="White"
-                            FontAttributes="Bold"
-                            FontSize="20"
-                            VerticalOptions="End"
-                            Clicked="OnAddAccountClicked" />
-
-                    </Grid>
-
-                </Frame>
-
-                <!-- Balance card -->
-                <Frame
-                    CornerRadius="28"
-                    Padding="22"
-                    HasShadow="False">
-
+                <!-- Balance Card -->
+                <Frame CornerRadius="30" Padding="30" HasShadow="True">
                     <Frame.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#4F46E5" Offset="0" />
-                            <GradientStop Color="#7C3AED" Offset="0.55" />
-                            <GradientStop Color="#A855F7" Offset="1" />
+                            <GradientStop Color="#6366F1" Offset="0.0"/>
+                            <GradientStop Color="#8B5CF6" Offset="1.0"/>
                         </LinearGradientBrush>
                     </Frame.Background>
 
-                    <VerticalStackLayout Spacing="8">
+                    <VerticalStackLayout Spacing="18">
+                        <Label Text="Total Balance" TextColor="#E0E7FF" FontSize="14"/>
+                        <Label x:Name="BalanceLabel"
+                   Text="$0.00"
+                   TextColor="White" FontSize="38" FontAttributes="Bold"/>
 
-                        <Label
-                            Text="Total Balance"
-                            TextColor="#E9D5FF"
-                            FontSize="14" />
+                        <Grid ColumnDefinitions="*,*">
+                            <VerticalStackLayout>
+                                <Label Text="Income" FontSize="12" TextColor="#E0E7FF"/>
+                                <Label x:Name="IncomeLabel"
+                       Text="$0"
+                       TextColor="#BBF7D0" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
 
-                        <Label
-                            x:Name="BalanceLabel"
-                            Text="$0.00"
-                            FontSize="40"
-                            FontAttributes="Bold"
-                            TextColor="White" />
-
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                            <Label
-                                Text="●"
-                                TextColor="#C4B5FD"
-                                FontSize="12"
-                                VerticalOptions="Center" />
-                            <Label
-                                Grid.Column="1"
-                                Text="Updated just now"
-                                FontSize="12"
-                                TextColor="#F3E8FF"
-                                VerticalOptions="Center" />
-                        </Grid>
-
-                    </VerticalStackLayout>
-
-                </Frame>
-
-                <!-- Income and Expense -->
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
-
-                    <Frame
-                        BackgroundColor="#0D2B22"
-                        BorderColor="#1E4A3A"
-                        CornerRadius="22"
-                        Padding="16"
-                        HasShadow="False">
-
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <Frame
-                                WidthRequest="42"
-                                HeightRequest="42"
-                                CornerRadius="21"
-                                BackgroundColor="#123A2B"
-                                HasShadow="False"
-                                Padding="0">
-                                <Label
-                                    Text="↗"
-                                    TextColor="#86EFAC"
-                                    FontSize="20"
-                                    HorizontalOptions="Center"
-                                    VerticalOptions="Center" />
-                            </Frame>
-
-                            <VerticalStackLayout Grid.Column="1" Spacing="4">
-                                <Label
-                                    Text="Income"
-                                    TextColor="#86EFAC"
-                                    FontSize="13" />
-
-                                <Label
-                                    x:Name="IncomeLabel"
-                                    Text="$0.00"
-                                    TextColor="#22C55E"
-                                    FontSize="28"
-                                    FontAttributes="Bold" />
-
-                                <Label
-                                    Text="This month"
-                                    TextColor="#77C99A"
-                                    FontSize="12" />
+                            <VerticalStackLayout>
+                                <Label Text="Expenses" FontSize="12" TextColor="#E0E7FF"/>
+                                <Label x:Name="ExpenseLabel"
+                       Text="$0"
+                       TextColor="#FECACA" FontAttributes="Bold"/>
                             </VerticalStackLayout>
                         </Grid>
-                    </Frame>
-
-                    <Frame
-                        Grid.Column="1"
-                        BackgroundColor="#3A0B0B"
-                        BorderColor="#5A1A1A"
-                        CornerRadius="22"
-                        Padding="16"
-                        HasShadow="False">
-
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <Frame
-                                WidthRequest="42"
-                                HeightRequest="42"
-                                CornerRadius="21"
-                                BackgroundColor="#4A1414"
-                                HasShadow="False"
-                                Padding="0">
-                                <Label
-                                    Text="↘"
-                                    TextColor="#FCA5A5"
-                                    FontSize="20"
-                                    HorizontalOptions="Center"
-                                    VerticalOptions="Center" />
-                            </Frame>
-
-                            <VerticalStackLayout Grid.Column="1" Spacing="4">
-                                <Label
-                                    Text="Expense"
-                                    TextColor="#FCA5A5"
-                                    FontSize="13" />
-
-                                <Label
-                                    x:Name="ExpenseLabel"
-                                    Text="$0.00"
-                                    TextColor="#EF4444"
-                                    FontSize="28"
-                                    FontAttributes="Bold" />
-
-                                <Label
-                                    Text="This month"
-                                    TextColor="#E38E8E"
-                                    FontSize="12" />
-                            </VerticalStackLayout>
-                        </Grid>
-                    </Frame>
-
-                </Grid>
-
-                <!-- Smart Insights -->
-                <!-- 🔥 Smart Insights (UPGRADED) -->
-                <Frame
-    BackgroundColor="#0D1B2E"
-    BorderColor="#1A2B45"
-    CornerRadius="24"
-    Padding="18"
-    HasShadow="False">
-
-                    <VerticalStackLayout Spacing="12">
-
-                        <HorizontalStackLayout Spacing="10">
-                            <Label Text="💡" FontSize="20"/>
-                            <Label
-                Text="Smart Insights"
-                FontSize="18"
-                FontAttributes="Bold"
-                TextColor="White"/>
-                        </HorizontalStackLayout>
-
-                        <!-- Top Category -->
-                        <Label
-            x:Name="TopCategoryLabel"
-            Text="Top spending: -"
-            FontSize="13"
-            TextColor="#8FA3BF"/>
-
-                        <!-- Balance Status -->
-                        <Label
-            x:Name="BalanceStatusLabel"
-            Text="Balance status"
-            FontSize="13"
-            TextColor="#8FA3BF"/>
-
-                        <!-- Budget Status -->
-                        <Label
-            x:Name="BudgetStatusLabel"
-            Text="Budget status"
-            FontSize="13"
-            FontAttributes="Bold"
-            TextColor="#22C55E"/>
-
                     </VerticalStackLayout>
                 </Frame>
 
-                <!-- Quick Actions title -->
-                <Grid ColumnDefinitions="*,Auto">
-                    <Label
-                        Text="Quick Actions"
-                        FontSize="20"
-                        FontAttributes="Bold"
-                        TextColor="White" />
-
-                    <Label
-                        Grid.Column="1"
-                        Text="Tap a card"
-                        FontSize="12"
-                        TextColor="#8FA3BF"
-                        VerticalOptions="Center" />
+                <!-- Filters -->
+                <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="10">
+                    <Button Text="This Month" Clicked="OnFilterThisMonth"/>
+                    <Button Grid.Column="1" Text="Last Month" Clicked="OnFilterLastMonth"/>
+                    <Button Grid.Column="2" Text="All" Clicked="OnFilterAll"/>
                 </Grid>
 
-                <!-- Quick Actions row 1 -->
-                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                <!-- Quick Actions -->
+                <Label Text="Quick Actions" TextColor="White" FontSize="18" FontAttributes="Bold"/>
 
-                    <Frame
-                        BackgroundColor="#0D1B2E"
-                        BorderColor="#1A2B45"
-                        CornerRadius="22"
-                        Padding="16"
-                        HasShadow="False">
-
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="15">
+                    <Frame CornerRadius="25" BackgroundColor="#1E293B" Padding="22" HasShadow="False">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label Text="➕" FontSize="24"/>
+                            <Label Text="Add" TextColor="White" FontSize="12"/>
+                        </VerticalStackLayout>
                         <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnAddClicked" />
+                            <TapGestureRecognizer Tapped="OnAddClicked"/>
                         </Frame.GestureRecognizers>
+                    </Frame>
 
-                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                            <Frame
-                                WidthRequest="42"
-                                HeightRequest="42"
-                                CornerRadius="21"
-                                Padding="0"
-                                BackgroundColor="#1F1636"
-                                HasShadow="False">
-                                <Label
-                                    Text="➕"
-                                    FontSize="18"
-                                    HorizontalOptions="Center"
-                                    VerticalOptions="Center" />
-                            </Frame>
-                            <Label
-                                Text="Add"
-                                TextColor="White"
-                                FontAttributes="Bold"
-                                HorizontalOptions="Center" />
-                            <Label
-                                Text="Transaction"
-                                TextColor="#8FA3BF"
-                                FontSize="11"
-                                HorizontalOptions="Center" />
+                    <Frame CornerRadius="25" BackgroundColor="#1E293B" Padding="22" HasShadow="False">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label Text="📊" FontSize="24"/>
+                            <Label Text="Analytics" TextColor="White" FontSize="12"/>
                         </VerticalStackLayout>
                     </Frame>
 
-                    <Frame
-                        Grid.Column="1"
-                        BackgroundColor="#0D1B2E"
-                        BorderColor="#1A2B45"
-                        CornerRadius="22"
-                        Padding="16"
-                        HasShadow="False">
-
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnAnalyticsClicked" />
-                        </Frame.GestureRecognizers>
-
-                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                            <Frame
-                                WidthRequest="42"
-                                HeightRequest="42"
-                                CornerRadius="21"
-                                Padding="0"
-                                BackgroundColor="#132A47"
-                                HasShadow="False">
-                                <Label
-                                    Text="📊"
-                                    FontSize="18"
-                                    HorizontalOptions="Center"
-                                    VerticalOptions="Center" />
-                            </Frame>
-                            <Label
-                                Text="Analytics"
-                                TextColor="White"
-                                FontAttributes="Bold"
-                                HorizontalOptions="Center" />
-                            <Label
-                                Text="Insights"
-                                TextColor="#8FA3BF"
-                                FontSize="11"
-                                HorizontalOptions="Center" />
+                    <Frame CornerRadius="25" BackgroundColor="#1E293B" Padding="22" HasShadow="False">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label Text="💸" FontSize="24"/>
+                            <Label Text="Transfer" TextColor="White" FontSize="12"/>
                         </VerticalStackLayout>
                     </Frame>
-
-                    <Frame
-                        Grid.Column="2"
-                        BackgroundColor="#0D1B2E"
-                        BorderColor="#1A2B45"
-                        CornerRadius="22"
-                        Padding="16"
-                        HasShadow="False">
-
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnPlanningClicked" />
-                        </Frame.GestureRecognizers>
-
-                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                            <Frame
-                                WidthRequest="42"
-                                HeightRequest="42"
-                                CornerRadius="21"
-                                Padding="0"
-                                BackgroundColor="#143020"
-                                HasShadow="False">
-                                <Label
-                                    Text="📅"
-                                    FontSize="18"
-                                    HorizontalOptions="Center"
-                                    VerticalOptions="Center" />
-                            </Frame>
-                            <Label
-                                Text="Planning"
-                                TextColor="White"
-                                FontAttributes="Bold"
-                                HorizontalOptions="Center" />
-                            <Label
-                                Text="Budgets"
-                                TextColor="#8FA3BF"
-                                FontSize="11"
-                                HorizontalOptions="Center" />
-                        </VerticalStackLayout>
-                    </Frame>
-
                 </Grid>
 
-                <!-- Quick Actions row 2 -->
-                <Grid ColumnDefinitions="*" ColumnSpacing="12">
+                <!-- Recent Transactions -->
+                <Label Text="Recent Transactions" TextColor="White" FontSize="18" FontAttributes="Bold"/>
+                <Frame CornerRadius="30" BackgroundColor="#1E293B" Padding="0" HasShadow="False">
+                    <CollectionView x:Name="RecentList" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <SwipeView>
+                                    <SwipeView.RightItems>
+                                        <SwipeItems Mode="Reveal">
+                                            <SwipeItem Text="Delete" BackgroundColor="#EF4444" Invoked="OnDeleteSwipe"/>
+                                        </SwipeItems>
+                                    </SwipeView.RightItems>
 
-                    <Frame
-                        BackgroundColor="#0D1B2E"
-                        BorderColor="#1A2B45"
-                        CornerRadius="22"
-                        Padding="16"
-                        HasShadow="False">
+                                    <!-- Row: category dot, title, amount -->
+                                    <Grid Padding="20,14" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnRowTapped"/>
+                                        </Grid.GestureRecognizers>
 
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnSavingsClicked" />
-                        </Frame.GestureRecognizers>
+                                        <BoxView WidthRequest="10" HeightRequest="10"
+                             VerticalOptions="Center"
+                             Color="{Binding Category, Converter={StaticResource CatColor}}"
+                             CornerRadius="5"/>
 
-                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                            <Frame
-                                WidthRequest="42"
-                                HeightRequest="42"
-                                CornerRadius="21"
-                                Padding="0"
-                                BackgroundColor="#2A1B47"
-                                HasShadow="False">
-                                <Label
-                                    Text="🎯"
-                                    FontSize="18"
-                                    HorizontalOptions="Center"
-                                    VerticalOptions="Center" />
-                            </Frame>
-                            <Label
-                                Text="Savings Goals"
-                                TextColor="White"
-                                FontAttributes="Bold"
-                                HorizontalOptions="Center" />
-                            <Label
-                                Text="Track targets"
-                                TextColor="#8FA3BF"
-                                FontSize="11"
-                                HorizontalOptions="Center" />
-                        </VerticalStackLayout>
-                    </Frame>
+                                        <Label Grid.Column="1"
+                           Text="{Binding Title}"
+                           TextColor="White"
+                           FontAttributes="Bold"
+                           FontSize="16"/>
 
-                </Grid>
+                                        <Label Grid.Column="2"
+                           Text="{Binding Amount, StringFormat='${0:0,0.00}'}"
+                           TextColor="White"
+                           FontAttributes="Bold"
+                           FontSize="16"/>
+                                    </Grid>
+                                </SwipeView>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Frame>
 
-            </VerticalStackLayout>
-        </ScrollView>
+        </VerticalStackLayout>
+    </ScrollView>
 
-        <!-- Floating add button -->
-        <Button
-            Text="+"
-            WidthRequest="68"
-            HeightRequest="68"
-            CornerRadius="34"
-            BackgroundColor="#7C3AED"
-            TextColor="White"
-            FontSize="30"
-            FontAttributes="Bold"
-            HorizontalOptions="End"
-            VerticalOptions="End"
-            Margin="20"
-            Clicked="OnAddClicked" />
+        <!-- Floating Add Button -->
+        <Frame BackgroundColor="#6366F1" WidthRequest="65" HeightRequest="65"
+           CornerRadius="32" HasShadow="True" Padding="0"
+           HorizontalOptions="End" VerticalOptions="End" Margin="20">
+            <Label Text="+" FontSize="30" TextColor="White"
+             HorizontalOptions="Center" VerticalOptions="Center"/>
+            <Frame.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnAddClicked"/>
+            </Frame.GestureRecognizers>
+        </Frame>
 
     </Grid>
 </ContentPage>

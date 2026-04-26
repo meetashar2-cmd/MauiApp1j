@@ -3,323 +3,31 @@
     x:Class="MauiApp1.PlanningPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    BackgroundColor="#061224"
-    Shell.NavBarIsVisible="False">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20,24,20,30" Spacing="22">
 
-            <Grid ColumnDefinitions="*,Auto">
+                   FontAttributes="Bold"
 
-                <VerticalStackLayout Spacing="4">
-                    <Label
-                        Text="Budget Planner"
-                        FontSize="30"
-                        FontAttributes="Bold"
-                        TextColor="White" />
+                <Picker.Items>
+                    <x:String>Food</x:String>
+                    <x:String>Travel</x:String>
+                    <x:String>Bills</x:String>
+                    <x:String>Entertainment</x:String>
+                </Picker.Items>
+            </Picker>
 
-                    <Label
-                        Text="Set smart monthly limits for your spending"
-                        FontSize="14"
-                        TextColor="#8FA3BF" />
-                </VerticalStackLayout>
+                   Keyboard="Numeric"
+                   TextColor="White"
 
-                <Frame
-                    HeightRequest="52"
-                    WidthRequest="52"
-                    CornerRadius="26"
-                    Padding="0"
-                    BackgroundColor="#10213A"
-                    HasShadow="False"
-                    BorderColor="#1E3353">
+                    Clicked="OnAddPlan"
 
-                    <Label
-                        Text="💳"
-                        FontSize="22"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center" />
-                </Frame>
-
-            </Grid>
-
-            <Frame
-                CornerRadius="28"
-                Padding="20"
-                HasShadow="False">
-
-                <Frame.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#4F46E5" Offset="0" />
-                        <GradientStop Color="#7C3AED" Offset="0.6" />
-                        <GradientStop Color="#A855F7" Offset="1" />
-                    </LinearGradientBrush>
-                </Frame.Background>
-
-                <VerticalStackLayout Spacing="8">
-                    <Label
-                        Text="Monthly Planning"
-                        FontSize="14"
-                        TextColor="#E9D5FF" />
-
-                    <Label
-                        Text="Create a budget plan"
-                        FontSize="28"
-                        FontAttributes="Bold"
-                        TextColor="White" />
-
-                    <Label
-                        Text="Track category limits account-wise."
-                        FontSize="13"
-                        TextColor="#F3E8FF" />
-                </VerticalStackLayout>
-            </Frame>
-
-            <Frame
-                BackgroundColor="#0D1B2E"
-                CornerRadius="26"
-                Padding="18"
-                HasShadow="False"
-                BorderColor="#1A2B45">
-
-                <VerticalStackLayout Spacing="16">
-
-                    <Label
-                        Text="New Budget Plan"
-                        FontSize="20"
-                        FontAttributes="Bold"
-                        TextColor="White" />
-
-                    <VerticalStackLayout Spacing="8">
-                        <Label
-                            Text="Account"
-                            FontSize="13"
-                            TextColor="#9FB2CC" />
-
-                        <Border
-                            Stroke="#243754"
-                            StrokeThickness="1.2"
-                            BackgroundColor="#12233B"
-                            StrokeShape="RoundRectangle 18">
-
-                            <Picker
-                                x:Name="AccountPicker"
-                                Title="Choose an account"
-                                TitleColor="#94A3B8"
-                                TextColor="White"
-                                BackgroundColor="Transparent"
-                                Margin="14,6"
-                                SelectedIndexChanged="OnAccountChanged" />
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <VerticalStackLayout Spacing="8">
-                        <Label
-                            Text="Category"
-                            FontSize="13"
-                            TextColor="#9FB2CC" />
-
-                        <Border
-                            Stroke="#243754"
-                            StrokeThickness="1.2"
-                            BackgroundColor="#12233B"
-                            StrokeShape="RoundRectangle 18">
-
-                            <Picker
-                                x:Name="CategoryPicker"
-                                Title="Choose a category"
-                                TitleColor="#94A3B8"
-                                TextColor="White"
-                                BackgroundColor="Transparent"
-                                Margin="14,6">
-                                <Picker.Items>
-                                    <x:String>Food</x:String>
-                                    <x:String>Travel</x:String>
-                                    <x:String>Bills</x:String>
-                                    <x:String>Entertainment</x:String>
-                                </Picker.Items>
-                            </Picker>
-
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <VerticalStackLayout Spacing="8">
-                        <Label
-                            Text="Budget Amount"
-                            FontSize="13"
-                            TextColor="#9FB2CC" />
-
-                        <Border
-                            Stroke="#243754"
-                            StrokeThickness="1.2"
-                            BackgroundColor="#12233B"
-                            StrokeShape="RoundRectangle 18">
-
-                            <Grid ColumnDefinitions="Auto,*" Padding="14,4">
-                                <Label
-                                    Text="$"
-                                    FontSize="18"
-                                    FontAttributes="Bold"
-                                    TextColor="#A78BFA"
-                                    VerticalOptions="Center" />
-
-                                <Entry
-                                    Grid.Column="1"
-                                    x:Name="AmountEntry"
-                                    Placeholder="Enter amount"
-                                    PlaceholderColor="#6B85A3"
-                                    Keyboard="Numeric"
-                                    TextColor="White"
-                                    BackgroundColor="Transparent"
-                                    Margin="8,0,0,0" />
-                            </Grid>
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <Button
-                        Text="Save Plan"
-                        Clicked="OnAddPlan"
-                        HeightRequest="54"
-                        CornerRadius="18"
-                        FontAttributes="Bold"
-                        FontSize="16"
-                        TextColor="White"
-                        BackgroundColor="#7C3AED" />
-
-                </VerticalStackLayout>
-            </Frame>
-
-            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
-
-                <Label
-                    Text="Saved Plans"
-                    FontSize="22"
-                    FontAttributes="Bold"
-                    TextColor="White"
-                    VerticalOptions="Center" />
-
-                <Frame
-                    Grid.Column="1"
-                    BackgroundColor="#10213A"
-                    CornerRadius="14"
-                    Padding="12,6"
-                    HasShadow="False"
-                    BorderColor="#1E3353">
-
-                    <Label
-                        Text="Monthly"
-                        FontSize="12"
-                        TextColor="#A78BFA" />
-                </Frame>
-
-            </Grid>
-
-            <CollectionView x:Name="PlansList" SelectionMode="None">
-                <CollectionView.EmptyView>
-                    <Frame
-                        BackgroundColor="#0D1B2E"
-                        BorderColor="#1A2B45"
-                        CornerRadius="24"
-                        Padding="28"
-                        HasShadow="False">
-
-                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                            <Label
-                                Text="📌"
-                                FontSize="34"
-                                HorizontalOptions="Center" />
-
-                            <Label
-                                Text="No plans yet"
-                                FontSize="22"
-                                FontAttributes="Bold"
-                                TextColor="White"
-                                HorizontalOptions="Center" />
-
-                            <Label
-                                Text="Create your first monthly budget plan above"
-                                FontSize="13"
-                                TextColor="#8FA3BF"
-                                HorizontalTextAlignment="Center" />
-                        </VerticalStackLayout>
-                    </Frame>
-                </CollectionView.EmptyView>
-
+            <!-- Plans List -->
+            <CollectionView x:Name="PlansList">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame
-                            BackgroundColor="#0D1B2E"
-                            BorderColor="#1A2B45"
-                            CornerRadius="22"
-                            Padding="14"
-                            Margin="0,0,0,12"
-                            HasShadow="False">
 
-                            <VerticalStackLayout Spacing="10">
+                                       TextColor="White"
 
-                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-
-                                    <Frame
-                                        WidthRequest="44"
-                                        HeightRequest="44"
-                                        CornerRadius="22"
-                                        Padding="0"
-                                        BackgroundColor="#162844"
-                                        HasShadow="False"
-                                        VerticalOptions="Center">
-
-                                        <Label
-                                            Text="💰"
-                                            FontSize="18"
-                                            HorizontalOptions="Center"
-                                            VerticalOptions="Center" />
-                                    </Frame>
-
-                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                        <Label
-                                            Text="{Binding Category}"
-                                            FontSize="18"
-                                            FontAttributes="Bold"
-                                            TextColor="White"
-                                            LineBreakMode="TailTruncation" />
-
-                                        <Label
-                                            Text="{Binding Spent, StringFormat='Spent: ${0:F2}'}"
-                                            FontSize="12"
-                                            TextColor="#8FA3BF" />
-                                    </VerticalStackLayout>
-
-                                    <Label
-                                        Grid.Column="2"
-                                        Text="{Binding Amount, StringFormat='${0:F0}'}"
-                                        FontSize="14"
-                                        FontAttributes="Bold"
-                                        TextColor="#C4B5FD"
-                                        VerticalOptions="Center"
-                                        HorizontalTextAlignment="End" />
-                                </Grid>
-
-                                <ProgressBar
-                                    Progress="{Binding Progress}"
-                                    ProgressColor="{Binding ProgressColor}"
-                                    BackgroundColor="#1E293B"
-                                    HeightRequest="8" />
-
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Label
-                                        Text="{Binding Remaining, StringFormat='Remaining: ${0:F2}'}"
-                                        FontSize="12"
-                                        TextColor="{Binding RemainingColor}"
-                                        LineBreakMode="TailTruncation" />
-
-                                    <Label
-                                        Grid.Column="1"
-                                        Text="{Binding Progress, StringFormat='Used: {0:P0}'}"
-                                        FontSize="12"
-                                        TextColor="{Binding ProgressColor}"
-                                        HorizontalTextAlignment="End" />
-                                </Grid>
-
-                            </VerticalStackLayout>
 
                         </Frame>
                     </DataTemplate>
@@ -328,4 +36,5 @@
 
         </VerticalStackLayout>
     </ScrollView>
+
 </ContentPage>
